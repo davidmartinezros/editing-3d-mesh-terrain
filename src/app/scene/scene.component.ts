@@ -69,8 +69,8 @@ export class SceneComponent implements AfterViewInit {
         );
 
         // Set position and look at
-        this.camera.position.x = 10;
-        this.camera.position.y = 10;
+        this.camera.position.x = 100;
+        this.camera.position.y = 100;
         this.camera.position.z = 100;
     }
 
