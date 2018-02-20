@@ -159,6 +159,11 @@ export class SceneComponent implements AfterViewInit {
 
     /* EVENTS */
 
+    public onMouseMove(event: MouseEvent) {
+        console.log("onMouse");
+    }
+
+
     public onMouseDown(event: MouseEvent) {
         console.log("onMouseDown");
         event.preventDefault();
@@ -177,8 +182,9 @@ export class SceneComponent implements AfterViewInit {
         console.log(intersects.length + " intersected objects found")
         intersects.forEach((i) => {
             console.log(i.object); // do what you want to do with object
+            i.object.position.y = i.object.position.y + 1;
         });
-
+        this.render();
     }
 
     private findAllObjects(pred: THREE.Object3D[], parent: THREE.Object3D) {
