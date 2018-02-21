@@ -82,8 +82,17 @@ export class SceneComponent implements AfterViewInit {
         squareGeometry.vertices.push(new THREE.Vector3(10*x, 0.0, 10*(z-1)));
         squareGeometry.faces.push(new THREE.Face3(0, 1, 2)); 
         squareGeometry.faces.push(new THREE.Face3(0, 3, 2));
+        squareGeometry.faceVertexUvs[ 0 ].push( [
+            new THREE.Vector2( 0, 0 ),
+            new THREE.Vector2( 0, 1 ),
+            new THREE.Vector2( 1, 1 ),
+            new THREE.Vector2( 1, 0 )
+        ] );
 
-        let material = new THREE.MeshBasicMaterial({color: 0x999999, side: THREE.DoubleSide, wireframe: true});
+        let material = new THREE.MeshBasicMaterial({
+            color: new THREE.Color(0xff0000),
+            side: THREE.DoubleSide, 
+            wireframe: true});
         this.mesh = new THREE.Mesh( squareGeometry, material );
         this.scene.add(this.mesh);
     }
@@ -134,7 +143,7 @@ export class SceneComponent implements AfterViewInit {
 
         this.renderer.shadowMap.enabled = true;
         this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-        this.renderer.setClearColor(0xffffff, 1);
+        this.renderer.setClearColor(0x000000, 1);
         this.renderer.autoClear = true;
 
         let component: SceneComponent = this;
