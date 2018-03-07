@@ -39,7 +39,7 @@ export class SceneComponent implements AfterViewInit {
     constructor() {
         this.render = this.render.bind(this);
         this.renderControls = this.renderControls.bind(this);
-        this.onModelLoadingCompleted = this.onModelLoadingCompleted.bind(this);
+        //this.onModelLoadingCompleted = this.onModelLoadingCompleted.bind(this);
     }
 
     private get canvas(): HTMLCanvasElement {
@@ -49,27 +49,31 @@ export class SceneComponent implements AfterViewInit {
     private createScene() {
         this.scene = new THREE.Scene();
         this.scene.add(new THREE.AxisHelper(200));
-        var loader = new THREE.ColladaLoader();
-        loader.load('assets/model/multimaterial.dae', this.onModelLoadingCompleted);
+        //var loader = new THREE.ColladaLoader();
+        //loader.load('assets/model/multimaterial.dae', this.onModelLoadingCompleted);
     }
-
+    /*
     private onModelLoadingCompleted(collada) {
         var modelScene = collada.scene;
         this.scene.add(modelScene);
         this.render();
     }
-
+    */
     private createLight() {
         var light = new THREE.PointLight(0xffffff, 1, 1000);
-        light.position.set(0, 0, 100);
+        light.position.set(0, 1000, 1000);
         this.scene.add(light);
 
         var light = new THREE.PointLight(0xffffff, 1, 1000);
-        light.position.set(0, 0, -100);
+        light.position.set(0, 1000, -1000);
         this.scene.add(light);
     }
 
     private createCamera() {
+        this.camera = new THREE.PerspectiveCamera(55.0, window.innerWidth / window.innerHeight, 0.5, 300000);
+        this.camera.position.set(450, 350, 450);
+        this.camera.lookAt(new THREE.Vector3());
+/*
         let aspectRatio = this.getAspectRatio();
         this.camera = new THREE.PerspectiveCamera(
             this.fieldOfView,
@@ -83,7 +87,7 @@ export class SceneComponent implements AfterViewInit {
         this.camera.position.y = 1000;
         this.camera.position.z = 1500;
 
-        this.camera.lookAt(new THREE.Vector3(0,0,0));
+        this.camera.lookAt(new THREE.Vector3(0,0,0));*/
     }
 
     private createSquare(x,y,z) {
@@ -165,15 +169,19 @@ export class SceneComponent implements AfterViewInit {
     }
 
     private startRendering() {
+        /*
+        this.renderer = new THREE.WebGLRenderer({canvas: this.canvas});
+        this.renderer.setPixelRatio( window.devicePixelRatio );
+        this.renderer.context.getExtension('OES_texture_float');
+        this.renderer.context.getExtension('OES_texture_float_linear');
+        */
+        
         this.renderer = new THREE.WebGLRenderer({
             canvas: this.canvas,
             antialias: true,
         });
         this.renderer.setPixelRatio(devicePixelRatio);
         this.renderer.setSize(this.canvas.clientWidth, this.canvas.clientHeight);
-
-        this.renderer.context.getExtension('OES_texture_float');
-		this.renderer.context.getExtension('OES_texture_float_linear');
 
         this.renderer.shadowMap.enabled = true;
         this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -211,6 +219,8 @@ export class SceneComponent implements AfterViewInit {
 
         //this.makeModifications(this);
 
+        this.updateOcean();
+
         this.renderer.render(this.scene, this.camera);
 
         //this.renderer.renderLists.dispose();
@@ -221,11 +231,40 @@ export class SceneComponent implements AfterViewInit {
 
     }
 
+    lastTime = (new Date()).getTime();
+
+    public updateOcean() {
+        if(this.ms_Ocean) {
+            var currentTime = new Date().getTime();
+            this.ms_Ocean.deltaTime = (currentTime - this.lastTime) / 1000 || 0.0;
+            this.lastTime = currentTime;
+            this.ms_Ocean.render(this.ms_Ocean.deltaTime);
+            this.ms_Ocean.overrideMaterial = this.ms_Ocean.materialOcean;
+            console.log(this.ms_Ocean.changed)
+            if (this.ms_Ocean.changed) {
+                this.ms_Ocean.materialOcean.uniforms.u_size.value = this.ms_Ocean.size;
+                this.ms_Ocean.materialOcean.uniforms.u_sunDirection.value.set( this.ms_Ocean.sunDirectionX, this.ms_Ocean.sunDirectionY, this.ms_Ocean.sunDirectionZ );
+                console.log(this.ms_Ocean.materialOcean.uniforms.u_sunDirection)
+                this.ms_Ocean.materialOcean.uniforms.u_exposure.value = this.ms_Ocean.exposure;
+                this.ms_Ocean.changed = false;
+            }
+            this.ms_Ocean.materialOcean.uniforms.u_normalMap.value = this.ms_Ocean.normalMapFramebuffer.texture;
+            this.ms_Ocean.materialOcean.uniforms.u_displacementMap.value = this.ms_Ocean.displacementMapFramebuffer.texture;
+            this.ms_Ocean.materialOcean.uniforms.u_projectionMatrix.value = this.camera.projectionMatrix;
+            this.ms_Ocean.materialOcean.uniforms.u_viewMatrix.value = this.camera.matrixWorldInverse;
+            this.ms_Ocean.materialOcean.uniforms.u_cameraPosition.value = this.camera.position;
+            this.ms_Ocean.materialOcean.depthTest = true;
+            //this.ms_Scene.__lights[1].position.x = this.ms_Scene.__lights[1].position.x + 0.01;
+            // rotar una llum amb una esfera a traves del mar com si fos el sol
+        }
+    }
+
     public createOcean() {
 
-        var types = { 'float': 'half-float', 'half-float': 'float' };
-        var hash = document.location.hash.substr( 1 );
-        if (!(hash in types)) hash = 'half-float';
+        //var types = { 'float': 'half-float', 'half-float': 'float' };
+        //var hash = document.location.hash.substr( 1 );
+        //if (!(hash in types)) hash = 'half-float';
+        let hash = 'half-float';
 
         var gsize = 512;
         var res = 1024;
@@ -383,7 +422,7 @@ export class SceneComponent implements AfterViewInit {
         this.createCamera();
         this.startRendering();
         this.addControls();
-        //no es veu
+        //no es veuen be els colors, pero el mar ja es veu ueeeee!!!
         this.createOcean();
         //this.animate();
     }
