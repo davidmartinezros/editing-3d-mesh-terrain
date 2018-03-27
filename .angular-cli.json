@@ -22,8 +22,7 @@
         "styles.css"
       ],
       "scripts": [
-        "assets/three.js",
-        "assets/ocean.js"
+        "assets/three.js"
       ],
       "environmentSource": "environments/environment.ts",
       "environments": {
