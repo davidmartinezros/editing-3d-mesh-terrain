@@ -311,6 +311,7 @@ export class SceneComponent implements AfterViewInit {
         this.createCamera();
         this.startRendering();
         this.addControls();
+        
         //this.animate();
     }
 
